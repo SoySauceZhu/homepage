@@ -2,7 +2,7 @@ name: Deploy site to GitHub Pages
 
 on:
   push:
-    branches: [ main ]   # change to 'master' if that's your default branch
+    branches: [ main ]   # change if your default branch is different
   workflow_dispatch:
 
 permissions:
@@ -11,29 +11,20 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: pages
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # Sets up Ruby and caches gems; uses your Gemfile (works with academicpages)
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      # Official Jekyll → Pages builder (handles BASEURL, etc.)
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
       - name: Build with Jekyll for Pages
         uses: actions/jekyll-build-pages@v1
         with:
-          source: .          # where your site source is
-          destination: _site # build output directory
-
+          source: .
+          destination: _site
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -46,6 +37,5 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
